@@ -1,0 +1,26 @@
+#completedSubmitBtn {
+   padding: 0 2px;
+   background-color: #e2eafc;
+   border: solid #d7e3fc 1px;
+   font-size: 13px;
+}
+
+.editBtn {
+   padding: 0 2px;
+   background-color: #efe5dc;
+   border: solid #eae4e9 1px;
+   font-size: 13px;
+}
+
+.nevermindBtn {
+   padding: 0 2px;
+   background-color: #d4afb9;
+   border: solid #eae4e9 1px;
+   font-size: 13px;
+}
+
+.toDo {
+   border: solid rgb(65, 62, 62) 1px;
+   border-radius: 1%;
+   padding: 10px;
+}

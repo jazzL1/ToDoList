@@ -5,6 +5,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <link rel="stylesheet" href="../stylesheet.css">
         <title>To-Do List</title>
     </head>
     <body>
@@ -19,15 +20,15 @@
                         </div>
                         <div class="mb-1">Select Task Priority</div>
                         <div class="form-check form-check-inline mb-3">
-                            <input class="form-check-input" type="radio" name="priority" id="highPriority" value="high">
+                            <input class="form-check-input" type="radio" name="priority" id="highPriority" value="1">
                             <label class="form-check-label" for="highPriority">High</label>
                         </div>
                         <div class="form-check form-check-inline mb-3">
-                            <input class="form-check-input" type="radio" name="priority" id="mediumPriority" value="medium">
+                            <input class="form-check-input" type="radio" name="priority" id="mediumPriority" value="2">
                             <label class="form-check-label" for="mediumPriority">Medium</label>
                         </div>
                         <div class="form-check form-check-inline mb-3">
-                            <input class="form-check-input" type="radio" name="priority" id="lowPriority" value="low">
+                            <input class="form-check-input" type="radio" name="priority" id="lowPriority" value="3">
                             <label class="form-check-label" for="lowPriority">Low</label>
                         </div>
                         <div class="mb-1">Select Task Category</div>
@@ -53,31 +54,106 @@
                 <div class="col-3 offset-1">
                     <h2 class="mb-3">Work List</h2>
                     <% for(let toDo of workToDos) {%>
-                        <%=toDo.task %>
-                        <%=toDo.priority %>
-                        <%=toDo.completeBy %>
-                        <br>
+                        <div class="mb-3 toDo">
+                            Task:
+                            <%=toDo.task %>
+                            <br>
+                            Complete By:
+                            <%=formatDate(toDo)%>
+                            <form method="POST" action="/?_method=DELETE">
+                                <label for="complete" class="form-label">Completed?</label>
+                                <input type="checkbox" name="complete" id="complete" class="form-check-input" value="<%=toDo._id %>">
+                                <button class="btn" id="completedSubmitBtn">Submit</button>
+                            </form>
+                            <button class="btn editBtn" onclick="createEditForm('<%=toDo._id %>')">Edit Task</button>
+                            <div class="m-2 dynamicEditForm<%=toDo._id %>"></div>
+                        </div>
                     <% } %>
                 </div>
                 <div class="col-3">
                     <h2 class="mb-3">Personal List</h2>
                     <% for(let toDo of personalToDos) {%>
-                        <%=toDo.task %>
-                        <%=toDo.priority %>
-                        <%=toDo.completeBy %>
-                        <br>
+                        <div class="mb-3 toDo">
+                            Task:
+                            <%=toDo.task %>
+                            <br>
+                            Complete By:
+                            <%=formatDate(toDo)%>
+                            <form method="POST" action="/?_method=DELETE">
+                                <label for="complete" class="form-label">Completed?</label>
+                                <input type="checkbox" name="complete" id="complete" class="form-check-input" value="<%= toDo._id %>">
+                                <button class="btn" id="completedSubmitBtn">Submit</button>
+                            </form>
+                            <button class="btn" id="editBtn">Edit Task</button>
+                        </div>
                     <% } %>
                 </div>
                 <div class="col-3">
                     <h2 class="mb-3">School List</h2>
                     <% for(let toDo of schoolToDos) {%>
-                        <%=toDo.task %>
-                        <%=toDo.priority %>
-                        <%=toDo.completeBy %>
-                        <br>
+                        <div class="mb-3 toDo">
+                            Task:
+                            <%=toDo.task %>
+                            <br>
+                            Complete By:
+                            <%=formatDate(toDo)%>
+                            <form method="POST" action="/?_method=DELETE">
+                                <label for="complete" class="form-label">Completed?</label>
+                                <input type="checkbox" name="complete" id="complete" class="form-check-input" value="<%= toDo._id %>">
+                                <button class="btn" id="completedSubmitBtn">Submit</button>
+                            </form>
+                            <button class="btn" id="editBtn">Edit Task</button>
+                        </div>
                     <% } %>
                 </div>
             </div>
+            <script>
+                function createEditForm(param) {
+                    console.log('hi')
+                    console.log(<%-JSON.stringify(workToDos[0])%>);
+                    document.querySelector('.editBtn').setAttribute('disabled', 'true');
+
+                    let form = document.createElement("form");
+                    form.setAttribute("method", "post");
+                    form.setAttribute("action", "/?=PATCH");
+
+                    let taskLabel = document.createElement('label');
+                    taskLabel.innerHTML = 'Edit Task';
+                    taskLabel.setAttribute("class", "form-label");
+                    taskLabel.setAttribute("for", "taskToEdit");
+
+                    let task = document.createElement('input');
+                    task.setAttribute('type', 'text');
+                    task.setAttribute("class", "form-control editInput");
+                    task.setAttribute("id", "taskToEdit");
+
+                    let completeByLabel = document.createElement('label');
+                    completeByLabel.innerHTML = 'Edit Date';
+                    completeByLabel.setAttribute("class", "form-label");
+                    completeByLabel.setAttribute("for", "dateToEdit");
+
+                    let completeBy = document.createElement('input');
+                    completeBy.setAttribute('type', 'date');
+                    completeBy.setAttribute("class", "form-control");
+                    completeBy.setAttribute("id", "dateToEdit");
+
+                    form.appendChild(taskLabel);
+                    form.appendChild(task);
+                    form.appendChild(completeByLabel);
+                    form.appendChild(completeBy);
+
+                    const cancelBtn = document.createElement('button');
+                    cancelBtn.innerHTML = 'Nevermind';
+                    cancelBtn.addEventListener("click", () => {
+                        document.querySelector(`.dynamicEditForm${param}`).removeChild(form);
+                        document.querySelector(`.dynamicEditForm${param}`).removeChild(cancelBtn);
+                        document.querySelector('.editBtn').removeAttribute('disabled');
+                    })
+
+                    document.querySelector(`.dynamicEditForm${param}`).appendChild(form);
+                    document.querySelector(`.dynamicEditForm${param}`).appendChild(cancelBtn);
+                }
+            </script>
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
         </body>
     </body>
