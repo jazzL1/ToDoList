@@ -55,6 +55,7 @@ app.get('/', async (req, res) => {
     sortCategories(personalToDos);
     const schoolToDos = await toDoItem.find({category: "school"});
     sortCategories(schoolToDos);
+    // const toDoArray = [workToDos, personalToDos, schoolToDos];
     res.render('index', {workToDos, personalToDos, schoolToDos, formatDate, defaultDate});
 });
 
