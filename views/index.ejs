@@ -48,113 +48,153 @@
                             <label for="completeBy" class="form-label">When Does Your Task Need To Be Completed By?</label>
                             <input type="date" name="completeBy" id="completeBy" class="form-control">
                         </div>
-                        <button>Add To My List</button>
+                        <button class="btn btn-primary">Add To My List</button>
                     </form>
                 </div>
+
+
                 <div class="col-3 offset-1">
+
                     <h2 class="mb-3">Work List</h2>
                     <% for(let toDo of workToDos) {%>
                         <div class="mb-3 toDo">
-                            Task:
-                            <%=toDo.task %>
-                            <br>
+                            <h4><%=toDo.task %></h4>
                             Complete By:
                             <%=formatDate(toDo)%>
-                            <form method="POST" action="/?_method=DELETE">
-                                <label for="complete" class="form-label">Completed?</label>
-                                <input type="checkbox" name="complete" id="complete" class="form-check-input" value="<%=toDo._id %>">
-                                <button class="btn" id="completedSubmitBtn">Submit</button>
+                            <form method="POST" action="/<%=toDo._id %>?_method=DELETE">
+                                <label for="complete<%=toDo._id %>" class="form-label">Completed?</label>
+                                <input type="checkbox" name="complete" id="complete<%=toDo._id %>" class="form-check-input">
+                                <button class="btn completedSubmitBtn">Submit</button>
                             </form>
-                            <button class="btn editBtn" onclick="createEditForm('<%=toDo._id %>')">Edit Task</button>
-                            <div class="m-2 dynamicEditForm<%=toDo._id %>"></div>
+                            <button class="btn editBtn mb-3" onclick="unhideForm('<%=toDo._id%>'); defaultPriority('<%=toDo._id%>', '<%=toDo.priority%>')">Edit Task</button>
+                            <div id="editForm<%=toDo._id%>" hidden>
+                                <form method="POST" action="/<%=toDo._id %>?_method=PATCH">
+                                    <div class="mb-1">Change Priority</div>
+                                    <div class="form-check form-check-inline mb-3">
+                                        <input class="form-check-input" type="radio" name="priority" id="highPriority<%=toDo._id %>" value="1">
+                                        <label class="form-check-label" for="highPriority<%=toDo._id %>">High</label>
+                                    </div>
+                                    <div class="form-check form-check-inline mb-3">
+                                        <input class="form-check-input" type="radio" name="priority" id="mediumPriority<%=toDo._id %>" value="2">
+                                        <label class="form-check-label" for="mediumPriority<%=toDo._id %>">Medium</label>
+                                    </div>
+                                    <div class="form-check form-check-inline mb-3">
+                                        <input class="form-check-input" type="radio" name="priority" id="lowPriority<%=toDo._id %>" value="3">
+                                        <label class="form-check-label" for="lowPriority<%=toDo._id %>">Low</label>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="completeBy<%=toDo._id %>" class="form-label">Change Date to be Completed By</label>
+                                        <input type="date" name="completeBy" id="completeBy<%=toDo._id %>" class="form-control" value="<%=defaultDate(toDo)%>">
+                                    </div>
+                                    <button class="btn submitChangesBtn">Submit Task Changes</button>
+                                </form>
+                                <button class="btn nevermindBtn" id="nevermind<%=toDo._id %>" onclick="hideForm('<%=toDo._id %>')">Nevermind</button>
+                            </div>
                         </div>
                     <% } %>
                 </div>
+
+
                 <div class="col-3">
                     <h2 class="mb-3">Personal List</h2>
                     <% for(let toDo of personalToDos) {%>
                         <div class="mb-3 toDo">
-                            Task:
-                            <%=toDo.task %>
-                            <br>
+                            <h4><%=toDo.task %></h4>
                             Complete By:
                             <%=formatDate(toDo)%>
-                            <form method="POST" action="/?_method=DELETE">
-                                <label for="complete" class="form-label">Completed?</label>
-                                <input type="checkbox" name="complete" id="complete" class="form-check-input" value="<%= toDo._id %>">
-                                <button class="btn" id="completedSubmitBtn">Submit</button>
+                            <form method="POST" action="/<%=toDo._id %>?_method=DELETE">
+                                <label for="complete<%=toDo._id %>" class="form-label">Completed?</label>
+                                <input type="checkbox" name="complete" id="complete<%=toDo._id %>" class="form-check-input">
+                                <button class="btn completedSubmitBtn">Submit</button>
                             </form>
-                            <button class="btn" id="editBtn">Edit Task</button>
+                            <button class="btn editBtn mb-3" onclick="unhideForm('<%=toDo._id%>'); defaultPriority('<%=toDo._id%>', '<%=toDo.priority%>')">Edit Task</button>
+                            <div id="editForm<%=toDo._id%>" hidden>
+                                <form method="POST" action="/<%=toDo._id %>?_method=PATCH">
+                                    <div class="mb-1">Change Priority</div>
+                                    <div class="form-check form-check-inline mb-3">
+                                        <input class="form-check-input" type="radio" name="priority" id="highPriority<%=toDo._id %>" value="1">
+                                        <label class="form-check-label" for="highPriority<%=toDo._id %>">High</label>
+                                    </div>
+                                    <div class="form-check form-check-inline mb-3">
+                                        <input class="form-check-input" type="radio" name="priority" id="mediumPriority<%=toDo._id %>" value="2">
+                                        <label class="form-check-label" for="mediumPriority<%=toDo._id %>">Medium</label>
+                                    </div>
+                                    <div class="form-check form-check-inline mb-3">
+                                        <input class="form-check-input" type="radio" name="priority" id="lowPriority<%=toDo._id %>" value="3">
+                                        <label class="form-check-label" for="lowPriority<%=toDo._id %>">Low</label>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="completeBy<%=toDo._id %>" class="form-label">Change Date to be Completed By</label>
+                                        <input type="date" name="completeBy" id="completeBy<%=toDo._id %>" class="form-control" value="<%=defaultDate(toDo)%>">
+                                    </div>
+                                    <button class="btn submitChangesBtn">Submit Task Changes</button>
+                                </form>
+                                <button class="btn nevermindBtn" id="nevermind<%=toDo._id %>" onclick="hideForm('<%=toDo._id %>')">Nevermind</button>
+                            </div>
                         </div>
                     <% } %>
                 </div>
+
+
                 <div class="col-3">
                     <h2 class="mb-3">School List</h2>
                     <% for(let toDo of schoolToDos) {%>
                         <div class="mb-3 toDo">
-                            Task:
-                            <%=toDo.task %>
-                            <br>
+                            <h4><%=toDo.task %></h4>
                             Complete By:
                             <%=formatDate(toDo)%>
-                            <form method="POST" action="/?_method=DELETE">
-                                <label for="complete" class="form-label">Completed?</label>
-                                <input type="checkbox" name="complete" id="complete" class="form-check-input" value="<%= toDo._id %>">
-                                <button class="btn" id="completedSubmitBtn">Submit</button>
+                            <form method="POST" action="/<%=toDo._id %>?_method=DELETE">
+                                <label for="complete<%=toDo._id %>" class="form-label">Completed?</label>
+                                <input type="checkbox" name="complete" id="complete<%=toDo._id %>" class="form-check-input">
+                                <button class="btn completedSubmitBtn">Submit</button>
                             </form>
-                            <button class="btn" id="editBtn">Edit Task</button>
+                            <button class="btn editBtn mb-3" onclick="unhideForm('<%=toDo._id%>'); defaultPriority('<%=toDo._id%>', '<%=toDo.priority%>')">Edit Task</button>
+                            <div id="editForm<%=toDo._id%>" hidden>
+                                <form method="POST" action="/<%=toDo._id %>?_method=PATCH">
+                                    <div class="mb-1">Change Priority</div>
+                                    <div class="form-check form-check-inline mb-3">
+                                        <input class="form-check-input" type="radio" name="priority" id="highPriority<%=toDo._id %>" value="1">
+                                        <label class="form-check-label" for="highPriority<%=toDo._id %>">High</label>
+                                    </div>
+                                    <div class="form-check form-check-inline mb-3">
+                                        <input class="form-check-input" type="radio" name="priority" id="mediumPriority<%=toDo._id %>" value="2">
+                                        <label class="form-check-label" for="mediumPriority<%=toDo._id %>">Medium</label>
+                                    </div>
+                                    <div class="form-check form-check-inline mb-3">
+                                        <input class="form-check-input" type="radio" name="priority" id="lowPriority<%=toDo._id %>" value="3">
+                                        <label class="form-check-label" for="lowPriority<%=toDo._id %>">Low</label>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="completeBy<%=toDo._id %>" class="form-label">Change Date to be Completed By</label>
+                                        <input type="date" name="completeBy" id="completeBy<%=toDo._id %>" class="form-control" value="<%=defaultDate(toDo)%>">
+                                    </div>
+                                    <button class="btn submitChangesBtn">Submit Task Changes</button>
+                                </form>
+                                <button class="btn nevermindBtn" id="nevermind<%=toDo._id %>" onclick="hideForm('<%=toDo._id %>')">Nevermind</button>
+                            </div>
                         </div>
                     <% } %>
                 </div>
             </div>
             <script>
-                function createEditForm(param) {
-                    console.log('hi')
-                    console.log(<%-JSON.stringify(workToDos[0])%>);
-                    document.querySelector('.editBtn').setAttribute('disabled', 'true');
+                function defaultPriority(id, priority) {
+                    if (priority === "1") {
+                        document.getElementById(`highPriority${id}`).setAttribute('checked', 'true')
+                    } else if (priority === "2") {
+                        document.getElementById(`mediumPriority${id}`).setAttribute('checked', 'true')
+                    } else {
+                        document.getElementById(`lowPriority${id}`).setAttribute('checked', 'true')
+                    }
+                }
 
-                    let form = document.createElement("form");
-                    form.setAttribute("method", "post");
-                    form.setAttribute("action", "/?=PATCH");
-
-                    let taskLabel = document.createElement('label');
-                    taskLabel.innerHTML = 'Edit Task';
-                    taskLabel.setAttribute("class", "form-label");
-                    taskLabel.setAttribute("for", "taskToEdit");
-
-                    let task = document.createElement('input');
-                    task.setAttribute('type', 'text');
-                    task.setAttribute("class", "form-control editInput");
-                    task.setAttribute("id", "taskToEdit");
-
-                    let completeByLabel = document.createElement('label');
-                    completeByLabel.innerHTML = 'Edit Date';
-                    completeByLabel.setAttribute("class", "form-label");
-                    completeByLabel.setAttribute("for", "dateToEdit");
-
-                    let completeBy = document.createElement('input');
-                    completeBy.setAttribute('type', 'date');
-                    completeBy.setAttribute("class", "form-control");
-                    completeBy.setAttribute("id", "dateToEdit");
-
-                    form.appendChild(taskLabel);
-                    form.appendChild(task);
-                    form.appendChild(completeByLabel);
-                    form.appendChild(completeBy);
-
-                    const cancelBtn = document.createElement('button');
-                    cancelBtn.innerHTML = 'Nevermind';
-                    cancelBtn.addEventListener("click", () => {
-                        document.querySelector(`.dynamicEditForm${param}`).removeChild(form);
-                        document.querySelector(`.dynamicEditForm${param}`).removeChild(cancelBtn);
-                        document.querySelector('.editBtn').removeAttribute('disabled');
-                    })
-
-                    document.querySelector(`.dynamicEditForm${param}`).appendChild(form);
-                    document.querySelector(`.dynamicEditForm${param}`).appendChild(cancelBtn);
+                function unhideForm(id) {
+                    document.getElementById(`editForm${id}`).removeAttribute('hidden');
+                }
+                function hideForm(id) {
+                    document.getElementById(`editForm${id}`).setAttribute('hidden', 'true');
                 }
             </script>
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
         </body>
     </body>
-</html>
+</html></body></body></html></body></html>

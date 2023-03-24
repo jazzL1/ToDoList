@@ -1,4 +1,4 @@
-#completedSubmitBtn {
+.completedSubmitBtn {
    padding: 0 2px;
    background-color: #e2eafc;
    border: solid #d7e3fc 1px;
@@ -15,6 +15,13 @@
 .nevermindBtn {
    padding: 0 2px;
    background-color: #d4afb9;
+   border: solid #eae4e9 1px;
+   font-size: 13px;
+}
+
+.submitChangesBtn {
+   padding: 0 2px;
+   background-color: #7da49e;
    border: solid #eae4e9 1px;
    font-size: 13px;
 }
