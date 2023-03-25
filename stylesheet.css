@@ -31,3 +31,34 @@
    border-radius: 1%;
    padding: 10px;
 }
+
+.priority1 {
+   background-color: #7a8af3;
+}
+
+.priority2 {
+   background-color: #b9b5ff;
+}
+
+.priority3 {
+   background-color: #b7b4ed89;
+}
+
+.logout {
+   position: absolute;
+   right: 15px;
+   top: 30%;
+}
+
+.header {
+   padding: 20px 0;
+   position: relative;
+   text-align: center;
+   background-color: #dec5e39d;
+   border-bottom: solid grey 2px
+}
+
+.headerTitle {
+   display: inline;
+
+}

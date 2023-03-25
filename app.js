@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const path = require("path");
 const port = 3000;
-const toDoItem = require('./todoSchema.js');
+const {toDoItem, user} = require('./schemas.js');
 
 const methodOverride = require('method-override');
 app.use(methodOverride('_method'));
@@ -47,8 +47,27 @@ function defaultDate(toDoItem) {
     return `${year}-${month}-${day}`;
   };
 
+app.get('/', (req, res) => {
+    res.render('login');
+});
 
-app.get('/', async (req, res) => {
+app.post('/', (req,res) => {
+    res.redirect('/toDo');
+})
+
+app.get('/register', (req, res) => {
+    res.render('register');
+});
+
+app.post('/register', (req, res) => {
+    res.redirect('/toDo');
+});
+
+app.get('/logout', (req, res) => {
+    res.redirect('/');
+});
+
+app.get('/toDo', async (req, res) => {
     const workToDos = await toDoItem.find({category: "work"});
     sortCategories(workToDos);
     const personalToDos = await toDoItem.find({category: "personal"});
@@ -59,19 +78,19 @@ app.get('/', async (req, res) => {
     res.render('index', {workToDos, personalToDos, schoolToDos, formatDate, defaultDate});
 });
 
-app.post('/', async (req, res) => {
+app.post('/toDo', async (req, res) => {
     const userSubmission =  req.body;
     const newToDo = await new toDoItem({task: userSubmission.task, priority:userSubmission.priority, category: userSubmission.category, completeBy: userSubmission.completeBy});
     await newToDo.save();
     res.redirect('/');
 })
 
-app.delete('/:id', async (req, res) => {
+app.delete('/toDo/:id', async (req, res) => {
     await toDoItem.findByIdAndDelete(req.params.id);
     res.redirect('/');
 })
 
-app.patch('/:id', async (req, res) => {
+app.patch('/toDo/:id', async (req, res) => {
     const updates = req.body;
     await toDoItem.findByIdAndUpdate(req.params.id, {$set: updates});
     res.redirect('/');
