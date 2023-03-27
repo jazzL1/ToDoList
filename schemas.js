@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const passportLocalMongoose = require('passport-local-mongoose');
 
 const toDoSchema = new mongoose.Schema({
     task: {
@@ -16,19 +17,17 @@ const toDoSchema = new mongoose.Schema({
     completeBy: {
         type: Date,
         required: true
+    },
+    user: {
+        type: mongoose.Schema.Types.ObjectId, ref: 'User',
+        required: true
     }
 })
 
 const userSchema = new mongoose.Schema({
-    userName: {
-        type: String,
-        required:true
-    },
-    password: {
-        type: String,
-        required: true
-    }
 })
+
+userSchema.plugin(passportLocalMongoose);
 
 module.exports.toDoItem = mongoose.model('ToDo', toDoSchema);
 

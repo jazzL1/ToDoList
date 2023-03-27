@@ -3,7 +3,13 @@
         <h4><%=toDo.task %></h4>
         Complete By:
         <strong><%=formatDate(toDo)%></strong>
-        <form method="POST" action="/<%=toDo._id %>?_method=DELETE">
+        <% const today = new Date(); %>
+        <% const offset = today.getTimezoneOffset() %>   
+        <% today.setHours(0, -offset, 0, 0);%>
+        <% if (toDo.completeBy < today) {%>
+            <span class="overdue">OVERDUE</span>
+        <% } %>
+        <form method="POST" action="/toDo/<%=toDo._id %>?_method=DELETE">
             <label for="complete<%=toDo._id %>" class="form-label">Completed?</label>
             <input type="checkbox" name="complete" id="complete<%=toDo._id %>" class="form-check-input">
             <button class="btn completedSubmitBtn">Submit</button>

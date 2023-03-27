@@ -4,11 +4,27 @@ const path = require("path");
 const port = 3000;
 const {toDoItem, user} = require('./schemas.js');
 
+const passport = require('passport');
+const LocalStrategy = require('passport-local');
+passport.use(new LocalStrategy(user.authenticate()));
+passport.serializeUser(user.serializeUser());
+passport.deserializeUser(user.deserializeUser());
+const session = require('express-session');
+app.use(session({
+    secret: 'ASDFPOIU',
+    resave: false,
+    saveUninitialized: true,
+    }
+));
+app.use(passport.session());
+
 const methodOverride = require('method-override');
 app.use(methodOverride('_method'));
 
 const mongoose = require('mongoose');
 const { format } = require("url");
+const { use } = require("passport");
+const { application } = require("express");
 async function main() {
     await mongoose.connect('mongodb://127.0.0.1:27017/toDoList');
 }
@@ -51,7 +67,7 @@ app.get('/', (req, res) => {
     res.render('login');
 });
 
-app.post('/', (req,res) => {
+app.post('/', passport.authenticate('local'), (req,res) => {
     res.redirect('/toDo');
 })
 
@@ -60,40 +76,60 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
-    res.redirect('/toDo');
+    user.register(new user({ username : req.body.username}), req.body.password, () => {
+        passport.authenticate('local')(req, res, () => {
+            res.redirect('/toDo');
+        });
+    });
 });
 
 app.get('/logout', (req, res) => {
-    res.redirect('/');
+    req.logout(() => {
+        res.redirect('/');
+    });
+    
 });
 
 app.get('/toDo', async (req, res) => {
-    const workToDos = await toDoItem.find({category: "work"});
+    const currentUser = req.user;
+    const username = currentUser.username;
+    const currentUserToDos = await toDoItem.find({user: currentUser});
+    const workToDos = []; 
+    const personalToDos =[];
+    const schoolToDos = [];
+    for(toDo of currentUserToDos) {
+        if(toDo.category === "work") {
+            workToDos.push(toDo);
+        }
+        else if(toDo.category === "personal") {
+            personalToDos.push(toDo);
+        }
+        else {
+            schoolToDos.push(toDo);
+        }
+    }
     sortCategories(workToDos);
-    const personalToDos = await toDoItem.find({category: "personal"});
     sortCategories(personalToDos);
-    const schoolToDos = await toDoItem.find({category: "school"});
     sortCategories(schoolToDos);
-    // const toDoArray = [workToDos, personalToDos, schoolToDos];
-    res.render('index', {workToDos, personalToDos, schoolToDos, formatDate, defaultDate});
+    res.render('index', {workToDos, personalToDos, schoolToDos, formatDate, defaultDate, username});
 });
 
 app.post('/toDo', async (req, res) => {
     const userSubmission =  req.body;
-    const newToDo = await new toDoItem({task: userSubmission.task, priority:userSubmission.priority, category: userSubmission.category, completeBy: userSubmission.completeBy});
+    const newToDo = await new toDoItem({task: userSubmission.task, priority:userSubmission.priority, category: userSubmission.category, completeBy: userSubmission.completeBy, user: req.user});
     await newToDo.save();
-    res.redirect('/');
+    res.redirect('/toDo');
 })
 
 app.delete('/toDo/:id', async (req, res) => {
     await toDoItem.findByIdAndDelete(req.params.id);
-    res.redirect('/');
+    res.redirect('/toDo');
 })
 
 app.patch('/toDo/:id', async (req, res) => {
     const updates = req.body;
     await toDoItem.findByIdAndUpdate(req.params.id, {$set: updates});
-    res.redirect('/');
+    res.redirect('/toDo');
 })
 
 app.listen(port, () => {

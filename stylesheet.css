@@ -44,6 +44,10 @@
    background-color: #b7b4ed89;
 }
 
+.overdue {
+   color: #b31e1e;
+}
+
 .logout {
    position: absolute;
    right: 15px;
@@ -54,11 +58,10 @@
    padding: 20px 0;
    position: relative;
    text-align: center;
-   background-color: #dec5e39d;
+   background-color: #ebcff067;
    border-bottom: solid grey 2px
 }
 
 .headerTitle {
    display: inline;
-
 }
