@@ -3,12 +3,14 @@ const app = express();
 const path = require("path");
 const port = 3000;
 const {toDoItem, user} = require('./schemas.js');
+const {isLoggedIn} = require('./middleware.js');
 
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
 passport.use(new LocalStrategy(user.authenticate()));
 passport.serializeUser(user.serializeUser());
 passport.deserializeUser(user.deserializeUser());
+
 const session = require('express-session');
 app.use(session({
     secret: 'ASDFPOIU',
@@ -22,9 +24,6 @@ const methodOverride = require('method-override');
 app.use(methodOverride('_method'));
 
 const mongoose = require('mongoose');
-const { format } = require("url");
-const { use } = require("passport");
-const { application } = require("express");
 async function main() {
     await mongoose.connect('mongodb://127.0.0.1:27017/toDoList');
 }
@@ -67,7 +66,7 @@ app.get('/', (req, res) => {
     res.render('login');
 });
 
-app.post('/', passport.authenticate('local'), (req,res) => {
+app.post('/', passport.authenticate('local', {failureRedirect: '/'}), (req,res) => {
     res.redirect('/toDo');
 })
 
@@ -75,12 +74,16 @@ app.get('/register', (req, res) => {
     res.render('register');
 });
 
-app.post('/register', (req, res) => {
-    user.register(new user({ username : req.body.username}), req.body.password, () => {
-        passport.authenticate('local')(req, res, () => {
+app.post('/register', async (req, res) => {
+    try {
+        const registeredUser = await user.register(new user({ username : req.body.username}), req.body.password);
+        req.logIn(registeredUser, () => {
             res.redirect('/toDo');
         });
-    });
+    } catch (error) {
+        console.log(error);
+        res.redirect('/register');
+    }
 });
 
 app.get('/logout', (req, res) => {
@@ -90,7 +93,7 @@ app.get('/logout', (req, res) => {
     
 });
 
-app.get('/toDo', async (req, res) => {
+app.get('/toDo', isLoggedIn, async (req, res) => {
     const currentUser = req.user;
     const username = currentUser.username;
     const currentUserToDos = await toDoItem.find({user: currentUser});
@@ -114,19 +117,21 @@ app.get('/toDo', async (req, res) => {
     res.render('index', {workToDos, personalToDos, schoolToDos, formatDate, defaultDate, username});
 });
 
-app.post('/toDo', async (req, res) => {
+app.post('/toDo', isLoggedIn, async (req, res) => {
     const userSubmission =  req.body;
     const newToDo = await new toDoItem({task: userSubmission.task, priority:userSubmission.priority, category: userSubmission.category, completeBy: userSubmission.completeBy, user: req.user});
     await newToDo.save();
     res.redirect('/toDo');
 })
 
-app.delete('/toDo/:id', async (req, res) => {
-    await toDoItem.findByIdAndDelete(req.params.id);
+app.delete('/toDo/:id', isLoggedIn, async (req, res) => {
+    if(req.body.complete) {
+        await toDoItem.findByIdAndDelete(req.params.id);
+    }
     res.redirect('/toDo');
 })
 
-app.patch('/toDo/:id', async (req, res) => {
+app.patch('/toDo/:id', isLoggedIn, async (req, res) => {
     const updates = req.body;
     await toDoItem.findByIdAndUpdate(req.params.id, {$set: updates});
     res.redirect('/toDo');
