@@ -3,7 +3,9 @@ const app = express();
 const path = require("path");
 const port = 3000;
 const {toDoItem, user} = require('./schemas.js');
-const {isLoggedIn} = require('./middleware.js');
+const isLoggedIn = require('./middleware.js');
+const catchAsync = require('./utilities/catchAsync.js');
+const ExpressError = require('./utilities/ExpressError.js');
 
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
@@ -36,7 +38,6 @@ app.set("view engine", "ejs");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname)); 
-
 
 function formatDate(toDoItem) {
     const day = toDoItem.completeBy.getUTCDate();
@@ -74,17 +75,16 @@ app.get('/register', (req, res) => {
     res.render('register');
 });
 
-app.post('/register', async (req, res) => {
+app.post('/register', catchAsync(async (req, res) => {
     try {
         const registeredUser = await user.register(new user({ username : req.body.username}), req.body.password);
         req.logIn(registeredUser, () => {
             res.redirect('/toDo');
         });
     } catch (error) {
-        console.log(error);
         res.redirect('/register');
     }
-});
+}));
 
 app.get('/logout', (req, res) => {
     req.logout(() => {
@@ -93,7 +93,7 @@ app.get('/logout', (req, res) => {
     
 });
 
-app.get('/toDo', isLoggedIn, async (req, res) => {
+app.get('/toDo', isLoggedIn, catchAsync(async (req, res) => {
     const currentUser = req.user;
     const username = currentUser.username;
     const currentUserToDos = await toDoItem.find({user: currentUser});
@@ -115,26 +115,35 @@ app.get('/toDo', isLoggedIn, async (req, res) => {
     sortCategories(personalToDos);
     sortCategories(schoolToDos);
     res.render('index', {workToDos, personalToDos, schoolToDos, formatDate, defaultDate, username});
-});
+}));
 
-app.post('/toDo', isLoggedIn, async (req, res) => {
+app.post('/toDo', isLoggedIn, catchAsync(async (req, res) => {
     const userSubmission =  req.body;
     const newToDo = await new toDoItem({task: userSubmission.task, priority:userSubmission.priority, category: userSubmission.category, completeBy: userSubmission.completeBy, user: req.user});
     await newToDo.save();
     res.redirect('/toDo');
-})
+}));
 
-app.delete('/toDo/:id', isLoggedIn, async (req, res) => {
+app.delete('/toDo/:id', isLoggedIn, catchAsync(async (req, res) => {
     if(req.body.complete) {
         await toDoItem.findByIdAndDelete(req.params.id);
     }
     res.redirect('/toDo');
-})
+}));
 
-app.patch('/toDo/:id', isLoggedIn, async (req, res) => {
+app.patch('/toDo/:id', isLoggedIn, catchAsync(async (req, res) => {
     const updates = req.body;
     await toDoItem.findByIdAndUpdate(req.params.id, {$set: updates});
     res.redirect('/toDo');
+}));
+
+app.all('*', (req, res, next) => {
+    next(new ExpressError('Page Not Found', 404));
+});
+
+app.use((err, req, res, next) => {
+    const {statusCode, message} = err;
+    res.status(statusCode).send(message);
 })
 
 app.listen(port, () => {

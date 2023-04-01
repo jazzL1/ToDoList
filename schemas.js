@@ -4,15 +4,15 @@ const passportLocalMongoose = require('passport-local-mongoose');
 const toDoSchema = new mongoose.Schema({
     task: {
         type: String,
-        required: true,
+        required: true
     },  
     priority: {
         type: Number,
-        required: true,
+        required: true
     },
     category: {
         type: String,
-        required: true,
+        required: true
     },
     completeBy: {
         type: Date,
